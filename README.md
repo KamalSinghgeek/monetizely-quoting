@@ -7,7 +7,7 @@ explained cost breakdown.
 
 - **Live demo:** https://monetizely-quoting-gyfayomrb-kamal-singhs-projects-93d0034c.vercel.app
 - **Repository:** https://github.com/KamalSinghgeek/monetizely-quoting
-- **Example shared quote:** save any quote in the app to get its public, read-only `/q/<token>` share URL
+- **Example shared quote:** https://monetizely-quoting-gyfayomrb-kamal-singhs-projects-93d0034c.vercel.app/q/0OzaP5Vt8aY7a8QvZvQsaenkVe7QqXeg
 
 > Built for the Monetizely take-home. The headline goal — *"the math has to be right and visible"* —
 > drives the architecture: a pure, exhaustively-tested pricing engine produces every number **together
@@ -17,14 +17,14 @@ explained cost breakdown.
 
 ## Tech stack
 
-| Concern | Choice |
-| --- | --- |
-| Framework | Next.js 16 (App Router, React 19, Server Actions) |
-| Language | TypeScript (strict) |
-| Database | PostgreSQL (Neon in production) via Prisma 6 |
-| Styling | Tailwind CSS v4 (hand-rolled components) |
-| Validation | zod v4 |
-| Tests | Vitest (unit) · Playwright (end-to-end) |
+| Concern    | Choice                                            |
+| ---------- | ------------------------------------------------- |
+| Framework  | Next.js 16 (App Router, React 19, Server Actions) |
+| Language   | TypeScript (strict)                               |
+| Database   | PostgreSQL (Neon in production) via Prisma 6      |
+| Styling    | Tailwind CSS v4 (hand-rolled components)          |
+| Validation | zod v4                                            |
+| Tests      | Vitest (unit) · Playwright (end-to-end)          |
 
 ## Running locally
 
