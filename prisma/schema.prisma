@@ -1,0 +1,131 @@
+// Prisma schema for the Monetizely quoting tool.
+//
+// Catalog (Product -> Tier / Feature -> TierFeature) is editable.
+// Quotes are immutable once saved: a Quote stores a full SNAPSHOT of its inputs and
+// computed line items, so editing the catalog later never changes an issued quote.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // pooled connection (runtime)
+  directUrl = env("DIRECT_URL") // direct connection (migrations)
+}
+
+// --- Catalog ---
+
+enum FeatureAvailability {
+  INCLUDED
+  ADDON
+  NOT_AVAILABLE
+}
+
+enum AddonPricingModel {
+  FIXED_MONTHLY // value = cents per month
+  PER_SEAT // value = cents per seat per month
+  PERCENT_OF_PRODUCT // value = basis points (1000 = 10%)
+}
+
+enum TermLength {
+  MONTHLY
+  ANNUAL
+  TWO_YEAR
+}
+
+model Product {
+  id        String    @id @default(cuid())
+  name      String
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  tiers     Tier[]
+  features  Feature[]
+  quotes    Quote[]
+}
+
+model Tier {
+  id             String        @id @default(cuid())
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name           String
+  basePriceCents Int // per seat per month
+  sortOrder      Int           @default(0)
+  tierFeatures   TierFeature[]
+
+  @@unique([productId, name])
+}
+
+model Feature {
+  id           String        @id @default(cuid())
+  productId    String
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name         String
+  sortOrder    Int           @default(0)
+  tierFeatures TierFeature[]
+
+  @@unique([productId, name])
+}
+
+// One row per (tier, feature) cell. `availability` is always set; the add-on columns
+// are populated only when availability = ADDON (enforced in the zod layer).
+model TierFeature {
+  id           String              @id @default(cuid())
+  tierId       String
+  tier         Tier                @relation(fields: [tierId], references: [id], onDelete: Cascade)
+  featureId    String
+  feature      Feature             @relation(fields: [featureId], references: [id], onDelete: Cascade)
+  availability FeatureAvailability
+  addonModel   AddonPricingModel?
+  addonValue   Int? // cents (FIXED_MONTHLY/PER_SEAT) or basis points (PERCENT_OF_PRODUCT)
+
+  @@unique([tierId, featureId])
+}
+
+// --- Quotes (immutable snapshots) ---
+
+model Quote {
+  id           String @id @default(cuid())
+  // Public, unguessable token used in the shareable URL (never the primary id).
+  shareToken   String @unique @default(cuid())
+  name         String
+  customerName String
+
+  // Input snapshot (denormalized; never re-joined to the live catalog when rendering).
+  productName        String
+  tierName           String
+  seats              Int
+  term               TermLength
+  termMonths         Int
+  termDiscountBps    Int
+  overallDiscountBps Int        @default(0)
+
+  // Computed snapshot (integer cents — the source of truth for the public quote page).
+  subtotalCents Int
+  discountCents Int
+  totalCents    Int
+
+  quoteDate  DateTime @default(now())
+  validUntil DateTime
+  createdAt  DateTime @default(now())
+
+  // Optional link back to the originating product (for listings/analytics only; not rendered).
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  lineItems QuoteLineItem[]
+}
+
+// Frozen, pre-rendered line items. The public page renders these verbatim.
+model QuoteLineItem {
+  id          String  @id @default(cuid())
+  quoteId     String
+  quote       Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  sortOrder   Int
+  kind        String // "BASE" | "ADDON" | "DISCOUNT"
+  label       String
+  explanation String
+  notes       String?
+  amountCents Int
+}
