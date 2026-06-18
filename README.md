@@ -65,7 +65,7 @@ npm run build       # production build (also verified in CI)
 
 ## Deploying
 
-Deploy to Vercel + Neon by following the step-by-step runbook in **[`docs/DEPLOY.md`](docs/DEPLOY.md)**.
+**Deployed to Vercel + Neon**
 The build command is `npm run vercel-build` (it runs `prisma generate && prisma migrate deploy && next build`).
 
 ---
