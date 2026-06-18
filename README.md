@@ -5,8 +5,9 @@ A lightweight quoting application for SaaS pricing. An analyst sets up a client'
 for a customer that produces a clean, shareable, read-only quote page with a fully itemized,
 explained cost breakdown.
 
-- **Live demo:** _add your Vercel URL here_
-- **Example shared quote:** _add a `/q/<token>` URL here_
+- **Live demo:** https://monetizely-quoting-gyfayomrb-kamal-singhs-projects-93d0034c.vercel.app
+- **Repository:** https://github.com/KamalSinghgeek/monetizely-quoting
+- **Example shared quote:** save any quote in the app to get its public, read-only `/q/<token>` share URL
 
 > Built for the Monetizely take-home. The headline goal — *"the math has to be right and visible"* —
 > drives the architecture: a pure, exhaustively-tested pricing engine produces every number **together
